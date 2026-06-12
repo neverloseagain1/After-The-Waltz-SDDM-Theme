@@ -1,0 +1,13 @@
+[SddmGreeterTheme]
+Name=After the Waltz
+Description=A Light/Dark Fantasy theme inspired by contrast and elegance
+Author=yaeblan
+Type=sddm-theme
+Version=1.0
+MainScript=Main.qml
+ConfigFile=theme.conf
+TranslationsDirectory=translations
+Email=yaeblan@example.com
+Theme-Id=after-the-waltz
+Theme-API=2.0
+QtVersion=6
