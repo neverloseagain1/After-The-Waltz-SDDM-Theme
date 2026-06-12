@@ -34,7 +34,7 @@ Clone this repository or download the ZIP archive and extract it directly into y
 
 ```bash
 # Clone the repository
-git clone https://github.com
+git clone https://github.com/neverloseagain1/After-The-Waltz-SDDM-Theme
 
 # Move the theme directory to system SDDM themes folder
 sudo cp -r after-the-waltz /usr/share/sddm/themes/after-the-waltz
