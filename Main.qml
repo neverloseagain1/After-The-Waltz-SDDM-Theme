@@ -1,12 +1,11 @@
 import QtQuick 2.11
 import QtQuick.Controls 2.4
 import QtQuick.Layouts 1.11
-import QtGraphicalEffects 1.0
+import QtGraphicalEffects 1.15
 
 Pane {
     id: root
-    width: Screen.width
-    height: Screen.height
+    anchors.fill: parent
     padding: 0
     topPadding: 0
     bottomPadding: 0
@@ -14,14 +13,7 @@ Pane {
     rightPadding: 0
     background: Item {}
 
-    property string realUsername: {
-        if (userModel.lastUser && userModel.lastUser !== "") {
-            return userModel.lastUser;
-        } else if (userModel.count > 0) {
-            return userModel.data(userModel.index(0, 0), Qt.UserRole + 1) || "User";
-        }
-        return "User";
-    }
+    property string realUsername: "User"
 
     Image {
         id: backgroundImage
@@ -33,9 +25,9 @@ Pane {
 
     Item {
         id: leftPanel
-        width: parent.width * 0.28
-        height: parent.height
-        anchors.left: parent.left
+        width: root.width * 0.28
+        height: root.height
+        anchors.left: parent ? parent.left : undefined
         clip: true
 
         ShaderEffectSource {
@@ -45,10 +37,11 @@ Pane {
             sourceRect: Qt.rect(0, 0, leftPanel.width, leftPanel.height)
         }
 
-        FastBlur {
+        GaussianBlur {
             anchors.fill: parent
             source: blurSource
             radius: 50
+            samples: 101
         }
 
         Rectangle {
@@ -59,8 +52,8 @@ Pane {
 
         Rectangle {
             width: 1
-            height: parent.height
-            anchors.right: parent.right
+            height: parent ? parent.height : 1080
+            anchors.right: parent ? parent.right : undefined
             color: "#D4A5C7"
             opacity: 0.4
         }
@@ -70,19 +63,20 @@ Pane {
         id: preciosaFont
         source: "fonts/" + (config.Font || "Preciosa") + ".ttf"
     }
+
     Item {
         id: uiContainer
         anchors.left: leftPanel.left
         anchors.top: leftPanel.top
         anchors.margins: 40
         width: leftPanel.width - 80
-        height: parent.height - 80
+        height: root.height - 80
 
         Text {
             id: welcomeText
-            anchors.top: parent.top
-            anchors.left: parent.left
-            anchors.right: parent.right
+            anchors.top: uiContainer.top
+            anchors.left: uiContainer.left
+            anchors.right: uiContainer.right
             text: "Welcome back, <b>" + root.realUsername + "</b>,<br>what do you want to do today?"
             font.family: preciosaFont.name
             font.pixelSize: 20
@@ -95,8 +89,8 @@ Pane {
             id: clockBlock
             anchors.top: welcomeText.bottom
             anchors.topMargin: 35
-            anchors.left: parent.left
-            anchors.right: parent.right
+            anchors.left: uiContainer.left
+            anchors.right: uiContainer.right
             spacing: 5
 
             Text {
@@ -128,17 +122,17 @@ Pane {
             id: formBlock
             anchors.top: clockBlock.bottom
             anchors.topMargin: 35
-            anchors.left: parent.left
-            anchors.right: parent.right
+            anchors.left: uiContainer.left
+            anchors.right: uiContainer.right
             height: 250
             z: 10
 
             TextField {
                 id: usernameField
-                anchors.top: parent.top
-                width: parent.width
+                anchors.top: formBlock.top
+                width: formBlock.width
                 height: 40
-                text: root.realUsername
+                text: ""
                 placeholderText: "Username"
                 font.family: preciosaFont.name
                 font.pixelSize: 16
@@ -156,14 +150,14 @@ Pane {
                 id: passwordField
                 anchors.top: usernameField.bottom
                 anchors.topMargin: 18
-                width: parent.width
+                width: formBlock.width
                 height: 40
                 placeholderText: "Password"
                 echoMode: TextInput.Password
                 font.family: preciosaFont.name
                 font.pixelSize: 16
                 color: passwordField.activeFocus ? "#A2E8B9" : "#D4A5C7"
-                focus: root.realUsername !== "User"
+                focus: true
                 placeholderTextColor: Qt.rgba(212/255, 165/255, 199/255, 0.4)
                 background: Rectangle {
                     color: "transparent"
@@ -177,11 +171,12 @@ Pane {
                     }
                 }
             }
+
             Rectangle {
                 id: sessionSelector
                 anchors.top: passwordField.bottom
                 anchors.topMargin: 18
-                width: parent.width
+                width: formBlock.width
                 height: 40
                 color: "transparent"
                 border.color: isOpen ? "#A2E8B9" : "#D4A5C7"
@@ -189,18 +184,18 @@ Pane {
                 radius: 6
                 property bool isOpen: false
                 Text {
-                    anchors.left: parent.left
+                    anchors.left: sessionSelector.left
                     anchors.leftMargin: 15
-                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.verticalCenter: sessionSelector.verticalCenter
                     text: sessionModel.data(sessionModel.index(sessionList.currentIndex, 0), Qt.DisplayRole) || "Select Session"
                     font.family: preciosaFont.name
                     font.pixelSize: 14
                     color: sessionSelector.isOpen ? "#A2E8B9" : "#D4A5C7"
                 }
                 Text {
-                    anchors.right: parent.right
+                    anchors.right: sessionSelector.right
                     anchors.rightMargin: 15
-                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.verticalCenter: sessionSelector.verticalCenter
                     text: sessionSelector.isOpen ? "▲" : "▼"
                     font.pixelSize: 10
                     color: sessionSelector.isOpen ? "#A2E8B9" : "#D4A5C7"
@@ -215,7 +210,7 @@ Pane {
                 id: loginButton
                 anchors.top: sessionSelector.bottom
                 anchors.topMargin: 18
-                width: parent.width
+                width: formBlock.width
                 height: 40
                 text: "Enter the Realm"
                 font.family: preciosaFont.name
@@ -243,7 +238,7 @@ Pane {
             Rectangle {
                 id: dropdownMenu
                 visible: sessionSelector.isOpen
-                anchors.top: sessionSelector.bottom
+                anchors.top: loginButton.bottom
                 anchors.topMargin: 2
                 width: sessionSelector.width
                 height: Math.min(sessionModel.count * 40, 160)
